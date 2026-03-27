@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Señal 8</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #0d0d1a;
+      --card: #16162a;
+      --glow-signal: #ff6ec7;
+      --glow-animo: #ffcc33;
+      --glow-calma: #4df7c0;
+      --text: #f0eeff;
+      --muted: #8880aa;
+      --radius: 2rem;
+      --font-display: 'Unbounded', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bg-blobs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: blobFloat 10s ease-in-out infinite alternate;
+    }
+
+    .blob-1 { width: 400px; height: 400px; background: #ff6ec7; top: -100px; left: -100px; animation-delay: 0s; }
+    .blob-2 { width: 350px; height: 350px; background: #4df7c0; bottom: -80px; right: -80px; animation-delay: 2s; }
+    .blob-3 { width: 300px; height: 300px; background: #ffcc33; top: 40%; left: 60%; animation-delay: 4s; }
+
+    @keyframes blobFloat {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    .screen {
+      display: none;
+      animation: screenIn 0.5s ease both;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .mascot {
+      font-size: 5rem;
+      animation: mascotBounce 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
+    }
+
+    @keyframes mascotBounce {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50% { transform: translateY(-10px) rotate(4deg); }
+    }
+
+    .title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 8vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1;
+      background: linear-gradient(135deg, #ff6ec7 0%, #ffcc33 50%, #4df7c0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .categories {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      perspective: 600px;
+    }
+
+    .cat-btn-wrap {
+      position: relative;
+      border-radius: 999px;
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .cat-btn-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      transform: translateY(8px);
+      filter: blur(1px);
+      z-index: 0;
+    }
+
+    .cat-btn-wrap[data-cat="senal"]::after { background: #8800aa; }
+    .cat-btn-wrap[data-cat="animo"]::after { background: #aa5500; }
+    .cat-btn-wrap[data-cat="calma"]::after { background: #006655; }
+
+    .cat-btn-wrap:hover {
+      transform: translateY(-4px);
+      filter: brightness(1.1);
+    }
+
+    .cat-btn-wrap:active {
+      transform: translateY(3px);
+      filter: brightness(0.96);
+      transition: transform 0.07s ease;
+    }
+
+    .cat-btn {
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.9rem 1.6rem;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      position: relative;
+      display: block;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform;
+      box-shadow: inset 0 3px 6px rgba(255,255,255,0.35), inset 0 -3px 6px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .cat-btn::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 20%;
+      width: 60%;
+      height: 35%;
+      background: rgba(255,255,255,0.25);
+      border-radius: 999px;
+      filter: blur(4px);
+      pointer-events: none;
+    }
+
+    .cat-btn-wrap[data-cat="senal"] .cat-btn {
+      background: linear-gradient(160deg, #ff9ee0, #c94fff 55%, #9900ee);
+      color: #fff;
+    }
+
+    .cat-btn-wrap[data-cat="animo"] .cat-btn {
+      background: linear-gradient(160deg, #fff0a0, #ffcc33 55%, #dd7700);
+      color: #1a0a00;
+    }
+
+    .cat-btn-wrap[data-cat="calma"] .cat-btn {
+      background: linear-gradient(160deg, #a0fff0, #4df7c0 55%, #009977);
+      color: #001a13;
+    }
+
+    .reveal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .reveal-badge {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .badge-senal { background: var(--glow-signal); box-shadow: 0 0 8px var(--glow-signal); }
+    .badge-animo { background: var(--glow-animo); box-shadow: 0 0 8px var(--glow-animo); }
+    .badge-calma { background: var(--glow-calma); box-shadow: 0 0 8px var(--glow-calma); }
+
+    .magic-ball {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      transition: transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .magic-ball.senal {
+      background: radial-gradient(circle at 35% 30%, #ff9ee0, #c94fff 60%, #6600cc);
+      box-shadow: 0 0 40px rgba(201,79,255,0.5), inset 0 0 30px rgba(0,0,0,0.3);
+    }
+
+    .magic-ball.animo {
+      background: radial-gradient(circle at 35% 30%, #fff0a0, #ffcc33 60%, #c86000);
+      box-shadow: 0 0 40px rgba(255,204,51,0.5), inset 0 0 30px rgba(0,0,0,0.2);
+      color: #1a0a00;
+    }
+
+    .magic-ball.calma {
+      background: radial-gradient(circle at 35% 30%, #a0fff0, #4df7c0 60%, #006680);
+      box-shadow: 0 0 40px rgba(77,247,192,0.5), inset 0 0 30px rgba(0,0,0,0.2);
+      color: #001a13;
+    }
+
+    .magic-ball::before {
+      content: '';
+      position: absolute;
+      width: 50px;
+      height: 30px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      top: 28px;
+      left: 38px;
+      transform: rotate(-30deg);
+      filter: blur(6px);
+    }
+
+    .ball-icon { font-size: 2.2rem; }
+    .ball-label { font-size: 0.75rem; opacity: 0.85; }
+
+    @keyframes jelly {
+      0%   { transform: scale(1); }
+      20%  { transform: scale(1.18, 0.82); }
+      40%  { transform: scale(0.88, 1.15); }
+      60%  { transform: scale(1.10, 0.90); }
+      80%  { transform: scale(0.96, 1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .magic-ball.jelly {
+      animation: jelly 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    .phrase-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      padding: 1.6rem 1.8rem;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      backdrop-filter: blur(10px);
+    }
+
+    .phrase-text {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      font-weight: 400;
+      color: var(--text);
+      opacity: 0;
+      transform: scale(0.88);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .phrase-text.revealed {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .phrase-box::before {
+      content: '';
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.06), transparent);
+      top: -40px;
+      right: -30px;
+    }
+
+    .counter {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .counter span {
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      padding: 0.65rem 1.3rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      backdrop-filter: blur(5px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.3);
+      transform: scale(1.04);
+    }
+
+    .btn-secondary:active { transform: scale(0.97); }
+
+    .btn-share {
+      background: linear-gradient(135deg, rgba(255,110,199,0.2), rgba(77,247,192,0.2));
+      border-color: rgba(255,110,199,0.3);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text);
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 400px) {
+      .magic-ball { width: 150px; height: 150px; }
+      .title { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="app">
+    <div class="screen active" id="screen-home">
+      <div class="mascot">🔮</div>
+      <h1 class="title">Señal 8</h1>
+      <p class="subtitle">Elige tu energía y deja que aparezca tu mensaje</p>
+
+      <div class="categories">
+        <div class="cat-btn-wrap" data-cat="senal">
+          <button class="cat-btn" type="button" onclick="startReveal('senal')">✨ Señal</button>
+        </div>
+        <div class="cat-btn-wrap" data-cat="animo">
+          <button class="cat-btn" type="button" onclick="startReveal('animo')">🔥 Ánimo</button>
+        </div>
+        <div class="cat-btn-wrap" data-cat="calma">
+          <button class="cat-btn" type="button" onclick="startReveal('calma')">🌊 Calma</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-reveal">
+      <div class="reveal-header">
+        <span class="reveal-badge" id="reveal-badge"></span>
+        <span id="reveal-category-label">Señal</span>
+      </div>
+
+      <button class="magic-ball" id="magic-ball" type="button" onclick="sortear()">
+        <span class="ball-icon" id="ball-icon">✨</span>
+        <span class="ball-label">Toca para revelar</span>
+      </button>
+
+      <div class="phrase-box">
+        <p class="phrase-text" id="phrase-text">Pulsa la bola para recibir tu mensaje...</p>
+      </div>
+
+      <p class="counter">Mensajes revelados: <span id="counter">0</span></p>
+
+      <div class="action-row">
+        <button class="btn-secondary" type="button" onclick="goHome()">← Volver</button>
+        <button class="btn-secondary btn-share" type="button" onclick="compartir()">📤 Compartir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">📋 Frase copiada al portapapeles</div>
+
+  <script>
+    const frases = {
+      senal: [
+        "El universo ya está preparando lo que necesitas. Solo confía.",
+        "Esta es tu señal para dar el siguiente paso sin miedo.",
+        "Lo que buscas también te está buscando a ti.",
+        "Hoy es un buen día para empezar algo nuevo.",
+        "No es casualidad que estés aquí ahora mismo.",
+        "Tu intuición es tu brújula más fiable. Escúchala.",
+        "Estás exactamente donde tienes que estar.",
+        "La señal que esperabas eres tú misma/o.",
+        "Cada pequeño paso suma. Sigue adelante.",
+        "El cambio ya ha comenzado, aunque no lo veas todavía."
+      ],
+      animo: [
+        "Eres más valiente de lo que crees y más capaz de lo que imaginas.",
+        "Los obstáculos no frenan, enseñan.",
+        "Hoy tienes el poder de cambiarlo todo.",
+        "Tu energía es contagiosa. Úsala bien.",
+        "Cada caída es una oportunidad de levantarte más fuerte.",
+        "No necesitas permiso para brillar. Hazlo.",
+        "Lo difícil de hoy es el logro de mañana.",
+        "Eres la protagonista/o de tu historia. Escríbela con valentía.",
+        "Respira, sonríe y recuerda que puedes.",
+        "Tu esfuerzo tiene recompensa, aunque aún no la veas."
+      ],
+      calma: [
+        "Suelta lo que no puedes controlar. La paz llega con la soltura.",
+        "En el silencio también hay respuestas.",
+        "No todo necesita solución ahora mismo.",
+        "Respira despacio. Este momento es suficiente.",
+        "La calma no es debilidad, es tu mayor fortaleza.",
+        "Date permiso para descansar sin culpa.",
+        "Fluir no es rendirse, es confiar en el proceso.",
+        "Tu mente necesita paz tanto como tu cuerpo necesita agua.",
+        "Hoy, lo suficiente es suficiente.",
+        "Cada respiración profunda es un regalo para tu sistema nervioso."
+      ]
+    };
+
+    let categoriaActual = 'senal';
+    let contador = 0;
+    let fraseActual = '';
+
+    const catInfo = {
+      senal: { label: 'Señal', badgeClass: 'badge-senal', icon: '✨', ballClass: 'senal' },
+      animo: { label: 'Ánimo', badgeClass: 'badge-animo', icon: '🔥', ballClass: 'animo' },
+      calma: { label: 'Calma', badgeClass: 'badge-calma', icon: '🌊', ballClass: 'calma' }
+    };
+
+    function startReveal(categoria) {
+      categoriaActual = categoria;
+
+      const info = catInfo[categoria];
+      document.getElementById('reveal-badge').className = 'reveal-badge ' + info.badgeClass;
+      document.getElementById('reveal-category-label').textContent = info.label;
+
+      const ball = document.getElementById('magic-ball');
+      ball.className = 'magic-ball ' + info.ballClass;
+      document.getElementById('ball-icon').textContent = info.icon;
+
+      const phraseEl = document.getElementById('phrase-text');
+      phraseEl.textContent = '';
+      phraseEl.classList.remove('revealed');
+
+      showScreen('screen-reveal');
+
+      setTimeout(() => {
+        sortear();
+      }, 400);
+    }
+
+    function sortear() {
+      const ball = document.getElementById('magic-ball');
+      const phraseEl = document.getElementById('phrase-text');
+
+      ball.classList.remove('jelly');
+      void ball.offsetWidth;
+      ball.classList.add('jelly');
+
+      phraseEl.classList.remove('revealed');
+
+      const pool = frases[categoriaActual];
+      const nueva = pool[Math.floor(Math.random() * pool.length)];
+      fraseActual = nueva;
+
+      setTimeout(() => {
+        phraseEl.textContent = nueva;
+        phraseEl.classList.add('revealed');
+      }, 300);
+
+      contador++;
+      document.getElementById('counter').textContent = contador;
+    }
+
+    function compartir() {
+      if (!fraseActual) {
+        mostrarToast('✨ Primero sortea un mensaje');
+        return;
+      }
+
+      const texto = `"${fraseActual}" — Señal 8 🔮`;
+
+      if (navigator.share) {
+        navigator.share({ text: texto }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(texto).then(() => {
+          mostrarToast('📋 Frase copiada al portapapeles');
+        }).catch(() => {
+          mostrarToast('No se pudo copiar');
+        });
+      }
+    }
+
+    function goHome() {
+      showScreen('screen-home');
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function mostrarToast(mensaje) {
+      const toast = document.getElementById('toast');
+      toast.textContent = mensaje;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>
